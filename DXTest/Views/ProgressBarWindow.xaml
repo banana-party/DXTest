@@ -1,0 +1,14 @@
+﻿<Window x:Class="DXTest.Views.ProgressBarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="150" Width="300"
+        ResizeMode="NoResize" >
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ProgressBar Grid.Row="0" Minimum="0" Maximum="100" Value="{Binding ProgressBarValue}"/>
+        <Button Grid.Row="1" Margin="40,10,40,5" Background="Red" Command="{Binding Path=CancelCommand, Mode=OneWay}">Cancel</Button>
+    </Grid>
+</Window>
