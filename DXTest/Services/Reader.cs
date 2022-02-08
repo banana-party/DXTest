@@ -4,12 +4,29 @@ using System.Windows;
 
 namespace DXTest.Services
 {
-    class Reader : Stream
+    public class Reader : Stream
     {
+        public readonly int TotalPrecentage = 99;
+        public int CurrentProgress
+        {
+            get => _currentProgress;
+            set
+            {
+                if (_currentProgress != value)
+                {
+                    _currentProgress = value;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        OnProgressChanged?.Invoke(CurrentProgress);
+                    });
+                }
+            }
+        }
+
+        private int _currentProgress = 0;
         private readonly FileStream fs;
         private long _currentLength;
         private long _totalLength;
-        private int _currentProgress = 0;
 
         public event Action<int> OnProgressChanged;
         public Reader(FileStream fs, Action<int> onValueChanged)
@@ -38,15 +55,8 @@ namespace DXTest.Services
         {
             int read = fs.Read(buffer, offset, count);
             _currentLength += read;
-            var newProgress = (int)(_currentLength / (double)_totalLength * 100);
-            if (_currentProgress != newProgress)
-            {
-                _currentProgress = newProgress;
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    OnProgressChanged?.Invoke(_currentProgress);
-                });
-            }
+            var newProgress = (int)(_currentLength / (double)_totalLength * TotalPrecentage);
+            CurrentProgress = newProgress;
             return read;
         }
 

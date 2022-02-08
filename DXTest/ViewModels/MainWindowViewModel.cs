@@ -41,7 +41,7 @@ namespace DXTest.ViewModels
                     var reader = new CsvReadService(open.FileName, (pb.DataContext as ProgressBarWindowViewModel).OnValueChanged);
                     Table = await reader.ReadCsvAsync(cts.Token);
                 }
-                catch(OperationCanceledException e)
+                catch(OperationCanceledException)
                 {
                     MessageBox.Show("Operation was cancelled by user.", "Cancel", MessageBoxButton.OK, MessageBoxImage.Information);
                 }

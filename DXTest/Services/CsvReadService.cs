@@ -30,50 +30,48 @@ namespace DXTest.Services
                     var reader = new Reader(fs, _onValueChanged);
                     using (TextFieldParser csvReader = new TextFieldParser(reader))
                     {
+                        bool isLastElementEmpty = false;
                         csvReader.SetDelimiters(new string[] { ";" });
                         csvReader.HasFieldsEnclosedInQuotes = false;
-                        string[] colFields = csvReader.ReadFields();
-                        List<string[]> rowFields = new List<string[]>();
+                        var colFields = csvReader.ReadFields().ToList();
+                        if (string.IsNullOrEmpty(colFields.Last()))
+                        {
+                            isLastElementEmpty = true;
+                            colFields.RemoveAt(colFields.Count - 1);
+                        }
+                        List<List<string>> rowFields = new List<List<string>>();
                         List<Type> types = new List<Type>();
                         while (!csvReader.EndOfData)
                         {
                             token.ThrowIfCancellationRequested();
-                            rowFields.Add(csvReader.ReadFields());
+                            rowFields.Add(csvReader.ReadFields().ToList());
                         }
-
-                        for (int i = 0; i < rowFields[0].Length; i++)
-                        {
-                            List<string> col = new List<string>();
-                            for (int j = 0; j < rowFields.Count; j++)
-                            {
-                                col.Add(rowFields[j][i]);
-
-                            }
-                            types.Add(GetColumnType(col));
-                        }
-                        for (int i = 0; i < colFields.Length; i++)
-                        {
-                            DataColumn datecolumn = new DataColumn(colFields[i], types[i]);
-                            datecolumn.AllowDBNull = true;
-                            csvData.Columns.Add(datecolumn);
-                        }
-                        foreach (var str in rowFields)
-                        {
-                            csvData.Rows.Add(str);
-                        }
-                        while (!csvReader.EndOfData)
+                        for (int i = 0; i < rowFields[0].Count; i++)
                         {
                             token.ThrowIfCancellationRequested();
-                            List<string> fieldData = csvReader.ReadFields().ToList();
-                            for (int i = 0; i < fieldData.Count; i++)
-                            {
-                                if (fieldData[i] == "")
-                                {
-                                    fieldData[i] = null;
-                                }
-                            }
-                            csvData.Rows.Add(fieldData.ToArray());
+                            List<string> col = new List<string>();
+                            for (int j = 0; j < rowFields.Count; j++)
+                                col.Add(rowFields[j][i]);
+                            types.Add(GetColumnType(col));
                         }
+                        if (isLastElementEmpty)
+                            types.RemoveAt(types.Count - 1);
+                        for (int i = 0; i < colFields.Count; i++)
+                        {
+                            token.ThrowIfCancellationRequested();
+                            DataColumn datacolumn = new DataColumn(colFields[i], types[i]);
+                            datacolumn.AllowDBNull = true;
+                            csvData.Columns.Add(datacolumn);
+                            datacolumn.DataType = typeof(string);
+                        }
+                        for (int i = 0; i < rowFields.Count; i++)
+                        {
+                            if (isLastElementEmpty)
+                                rowFields[i].RemoveAt(rowFields[i].Count - 1);
+                            token.ThrowIfCancellationRequested();
+                            csvData.Rows.Add(rowFields[i].ToArray());
+                        }
+                        reader.CurrentProgress = 100;
                     }
                 }
                 return csvData;
