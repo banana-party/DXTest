@@ -40,38 +40,36 @@ namespace DXTest.Services
                             colFields.RemoveAt(colFields.Count - 1);
                         }
                         List<List<string>> rowFields = new List<List<string>>();
-                        List<Type> types = new List<Type>();
+                        List<Type> types = new List<Type>(new Type[colFields.Count]);
+
                         while (!csvReader.EndOfData)
                         {
                             token.ThrowIfCancellationRequested();
-                            rowFields.Add(csvReader.ReadFields().ToList());
+                            var fields = csvReader.ReadFields().ToList();
+                            if (isLastElementEmpty)
+                                fields.RemoveAt(fields.Count - 1);
+                            rowFields.Add(fields);
+
+                            for (int i = 0; i < fields.Count; i++)
+                            {
+                                if (i != 0)
+                                {
+                                    if (types[i] == typeof(string))
+                                        continue;
+                                    types[i] = GetFieldType(fields[i]);
+                                }
+                                else
+                                    types[i] = GetFieldType(fields[i]);
+                            }
                         }
-                        for (int i = 0; i < rowFields[0].Count; i++)
-                        {
-                            token.ThrowIfCancellationRequested();
-                            List<string> col = new List<string>();
-                            for (int j = 0; j < rowFields.Count; j++)
-                                col.Add(rowFields[j][i]);
-                            types.Add(GetColumnType(col));
-                        }
-                        if (isLastElementEmpty)
-                            types.RemoveAt(types.Count - 1);
                         for (int i = 0; i < colFields.Count; i++)
                         {
-                            token.ThrowIfCancellationRequested();
-                            DataColumn datacolumn = new DataColumn(colFields[i], types[i]);
-                            datacolumn.AllowDBNull = true;
-                            csvData.Columns.Add(datacolumn);
-                            datacolumn.DataType = typeof(string);
+                            DataColumn dataColumn = new DataColumn(colFields[i], types[i]);
+                            dataColumn.AllowDBNull = true;
+                            csvData.Columns.Add(dataColumn);
                         }
-                        for (int i = 0; i < rowFields.Count; i++)
-                        {
-                            if (isLastElementEmpty)
-                                rowFields[i].RemoveAt(rowFields[i].Count - 1);
-                            token.ThrowIfCancellationRequested();
-                            csvData.Rows.Add(rowFields[i].ToArray());
-                        }
-                        reader.CurrentProgress = 100;
+                        foreach (var t in rowFields)
+                            csvData.Rows.Add(t.ToArray());
                     }
                 }
                 return csvData;
@@ -87,6 +85,20 @@ namespace DXTest.Services
             if (areAllInt)
                 return typeof(int);
             bool areAllDouble = columns.All(x => double.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out _));
+            if (areAllDouble)
+                return typeof(double);
+            return typeof(string);
+        }
+
+        private Type GetFieldType(string field)
+        {
+            bool areAllDateTime = DateTime.TryParse(field, out _);
+            if (areAllDateTime)
+                return typeof(DateTime);
+            bool areAllInt = int.TryParse(field, out _);
+            if (areAllInt)
+                return typeof(int);
+            bool areAllDouble = double.TryParse(field, NumberStyles.Any, CultureInfo.InvariantCulture, out _);
             if (areAllDouble)
                 return typeof(double);
             return typeof(string);

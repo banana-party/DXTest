@@ -9,6 +9,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <ProgressBar Grid.Row="0" Minimum="0" Maximum="100" Value="{Binding ProgressBarValue}"/>
-        <Button Grid.Row="1" Margin="40,10,40,5" Background="Red" Command="{Binding Path=CancelCommand, Mode=OneWay}">Cancel</Button>
+        <Button Grid.Row="1" Margin="40,10,40,5" Command="{Binding Path=CancelCommand, Mode=OneWay}">Cancel</Button>
     </Grid>
 </Window>
