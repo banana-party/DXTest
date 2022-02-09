@@ -68,7 +68,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Interfaces\IParser.cs" />
     <Compile Include="Services\CsvReadService.cs" />
+    <Compile Include="Services\ParserService.cs" />
+    <Compile Include="Services\Parsers\DateParser.cs" />
+    <Compile Include="Services\Parsers\DoubleParser.cs" />
+    <Compile Include="Services\Parsers\IntParser.cs" />
     <Compile Include="Services\Reader.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ProgressBarWindowViewModel.cs" />
@@ -120,6 +125,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

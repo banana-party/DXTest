@@ -41,7 +41,7 @@ namespace DXTest.Services
                         }
                         List<List<string>> rowFields = new List<List<string>>();
                         List<Type> types = new List<Type>(new Type[colFields.Count]);
-
+                        var parser = new ParserService();
                         while (!csvReader.EndOfData)
                         {
                             token.ThrowIfCancellationRequested();
@@ -52,14 +52,9 @@ namespace DXTest.Services
 
                             for (int i = 0; i < fields.Count; i++)
                             {
-                                if (i != 0)
-                                {
-                                    if (types[i] == typeof(string))
-                                        continue;
-                                    types[i] = GetFieldType(fields[i]);
-                                }
-                                else
-                                    types[i] = GetFieldType(fields[i]);
+                                var type = types[i];
+                                parser.FindFieldType(ref type, fields[i]);
+                                types[i] = type;
                             }
                         }
                         for (int i = 0; i < colFields.Count; i++)
@@ -74,20 +69,6 @@ namespace DXTest.Services
                 }
                 return csvData;
             }, token);
-        }
-
-        private Type GetFieldType(string field)
-        {
-            bool areAllDateTime = DateTime.TryParse(field, out _);
-            if (areAllDateTime)
-                return typeof(DateTime);
-            bool areAllInt = int.TryParse(field, out _);
-            if (areAllInt)
-                return typeof(int);
-            bool areAllDouble = double.TryParse(field, NumberStyles.Any, CultureInfo.InvariantCulture, out _);
-            if (areAllDouble)
-                return typeof(double);
-            return typeof(string);
         }
     }
 }
