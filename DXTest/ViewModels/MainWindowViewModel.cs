@@ -38,16 +38,22 @@ namespace DXTest.ViewModels
                 pb.Show();
                 try
                 {
-                    var reader = new CsvReadService(open.FileName, (pb.DataContext as ProgressBarWindowViewModel).OnValueChanged);
+                    var reader = new CsvReadService(open.FileName,
+                        (pb.DataContext as ProgressBarWindowViewModel).OnValueChanged);
                     Table = await reader.ReadCsvAsync(cts.Token);
                 }
-                catch(OperationCanceledException)
+                catch (OperationCanceledException)
                 {
-                    MessageBox.Show("Operation was cancelled by user.", "Cancel", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Operation was cancelled by user.", "Cancel", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
                 }
-                catch(ArgumentException e)
+                catch (ArgumentException e)
                 {
                     MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (IndexOutOfRangeException e)
+                {
+                    MessageBox.Show("Incorrect .csv file format.", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             
