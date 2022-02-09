@@ -76,20 +76,6 @@ namespace DXTest.Services
             }, token);
         }
 
-        private Type GetColumnType(List<string> columns)
-        {
-            bool areAllDateTime = columns.All(x => DateTime.TryParse(x, out _));
-            if (areAllDateTime)
-                return typeof(DateTime);
-            bool areAllInt = columns.All(x => int.TryParse(x, out _));
-            if (areAllInt)
-                return typeof(int);
-            bool areAllDouble = columns.All(x => double.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out _));
-            if (areAllDouble)
-                return typeof(double);
-            return typeof(string);
-        }
-
         private Type GetFieldType(string field)
         {
             bool areAllDateTime = DateTime.TryParse(field, out _);
