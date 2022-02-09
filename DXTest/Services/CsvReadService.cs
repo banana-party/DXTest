@@ -49,11 +49,7 @@ namespace DXTest.Services
                             rowFields.Add(fields);
 
                             for (int i = 0; i < fields.Count; i++)
-                            {
-                                var type = types[i];
-                                parser.FindFieldType(ref type, fields[i]);
-                                types[i] = type;
-                            }
+                                types[i] = parser.FindFieldType(types[i], fields[i]);
                         }
                         for (int i = 0; i < colFields.Count; i++)
                         {

@@ -18,18 +18,17 @@ namespace DXTest.Services
             };
         }
 
-        public void FindFieldType(ref Type type, string field)
+        public Type FindFieldType(Type previousType, string field)
         {
-            if (type == typeof(string))
-                return;
+            if (previousType == typeof(string))
+                return typeof(string);
 
             foreach (var parser in _parsers)
                 if (parser.TryParse(field))
                 {
-                    type = parser.FieldType;
-                    return;
+                    return parser.FieldType;
                 }
-            type = typeof(string);
+            return typeof(string);
         }
 
 
